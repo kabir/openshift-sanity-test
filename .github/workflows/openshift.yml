@@ -35,10 +35,10 @@ jobs:
           
           # Try the admin user instead
           #docker login -u openshift -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
-          echo "whoami"
-          whoami
-          echo "whoami -t"
-          whoami -t
+          echo "oc whoami"
+          oc whoami
+          echo "oc whoami -t"
+          oc whoami -t
           docker login -u admin -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
           
           echo "login done!"
