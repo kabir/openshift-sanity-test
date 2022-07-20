@@ -1,0 +1,29 @@
+name: Check Openshift
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  openshift:
+    name: Openshift 
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        openshift: [v3.11.0]
+    steps:
+      - name: Setup OpenShift
+        uses: manusa/actions-setup-openshift@v1.1.3
+        with:
+          oc version: ${{ matrix.openshift }}
+          github token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Openshift usage
+        run: |
+          echo "Logging in..."
+          oc login -u admin -p admin
+          oc new-project tests
+          # oc import-image fabric8/s2i-java:2.3 --from=docker.io/fabric8/s2i-java:2.3 --confirm
+          # oc tag --source docker docker.io/fabric8/s2i-java:2.3 s2i-java:2.3
+          # ./mvnw -B clean install -Presources -Pwith-examples -Pwith-tests -Duser.name=dekorateio -Dformat.skip=true
