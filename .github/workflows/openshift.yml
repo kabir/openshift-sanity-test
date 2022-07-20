@@ -23,7 +23,23 @@ jobs:
         run: |
           echo "Logging in..."
           oc login -u admin -p admin
+          echo "New project"
           oc new-project tests
-          # oc import-image fabric8/s2i-java:2.3 --from=docker.io/fabric8/s2i-java:2.3 --confirm
-          # oc tag --source docker docker.io/fabric8/s2i-java:2.3 s2i-java:2.3
-          # ./mvnw -B clean install -Presources -Pwith-examples -Pwith-tests -Duser.name=dekorateio -Dformat.skip=true
+          echo "Registry login"
+          oc registry login
+          echo "Registry info"
+          OPENSHIFT_IMAGE_REGISTRY=$(oc registry info)
+          echo "info was: $OPENSHIFT_IMAGE_REGISTRY"
+          echo "login to docker registry"
+          docker login -u openshift -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
+          echo "login done!"
+          echo "Pull, tag and push image to registry"
+          # pull and push an image
+          echo "Pull"
+          docker pull alpine:3.14
+          echo "Tag"
+          docker tag alpine:3.14 $OPENSHIFT_IMAGE_REGISTRY/tests/alpine:3.14
+          echo "Push"
+          docker push $OPENSHIFT_IMAGE_REGISTRY/tests/alpine:3.14
+          echo "Pushed!"
+          
