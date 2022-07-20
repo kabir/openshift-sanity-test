@@ -39,8 +39,7 @@ jobs:
           whoami
           echo "whoami -t"
           whoami -t
-
-          docker login -u openshift -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
+          docker login -u admin -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
           
           echo "login done!"
           echo "Pull, tag and push image to registry"
