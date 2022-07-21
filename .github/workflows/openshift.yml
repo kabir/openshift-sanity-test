@@ -32,7 +32,7 @@ jobs:
           github token: ${{ secrets.GITHUB_TOKEN }}
       - name: Openshift usage
         run: |
-          echo "Logging in..."
+          echo "Logging in...."
           oc login -u admin -p admin
           echo "New project"
           oc new-project tests
