@@ -71,8 +71,10 @@ jobs:
           echo "All files:"
           ls -al
 
-          echo "All files recursive:"
-          ls -alR
+          # echo "All files recursive:"
+          # ls -alR
 
           echo "Try to change permissions recursively"
-          sudo chmod -R 755 .
+          # sudo chmod -R 755 .
+          sudo bash -c 'sudo chmod -R 777 .'
+          
