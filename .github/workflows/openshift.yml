@@ -14,6 +14,20 @@ jobs:
       matrix:
         openshift: [v3.11.0]
     steps:
+      - name: Set Env Var
+        run: |
+          TMP=Hola
+          echo "$MY_VAR=${TMP}" >> $GITHUB_ENV
+      - name: Use Env Var A
+        run: echo $TMP
+      - name: Use Env Var B
+        run: echo ${TMP}
+      - name: Use Env Var C
+        run: echo ${{TMP}}
+      - name: Use Env Var D
+        run: echo ${env.TMP}
+      - name: Use Env Var D
+        run: echo ${{env.TMP}}
       - name: Setup OpenShift
         uses: manusa/actions-setup-openshift@v1.1.3
         with:
