@@ -17,7 +17,7 @@ jobs:
       - name: Set Env Var
         run: |
           TMP=Hola
-          echo "$MY_VAR=${TMP}" >> $GITHUB_ENV
+          echo "MY_VAR=${TMP}" >> $GITHUB_ENV
       - name: Use Env Var A
         run: echo $TMP
       - name: Use Env Var B
