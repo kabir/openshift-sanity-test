@@ -32,6 +32,10 @@ jobs:
           github token: ${{ secrets.GITHUB_TOKEN }}
       - name: Openshift usage
         run: |
+          echo "Current path:"
+          pwd
+          echo "All files:"
+          ls -al
           echo "Logging in...."
           oc login -u admin -p admin
           echo "New project"
