@@ -22,8 +22,8 @@ jobs:
         run: echo $TMP
       - name: Use Env Var B
         run: echo ${TMP}
-      - name: Use Env Var C
-        run: echo ${{TMP}}
+#       - name: Use Env Var C
+#         run: echo ${{TMP}}
       - name: Use Env Var D
         run: echo ${env.TMP}
       - name: Use Env Var D
