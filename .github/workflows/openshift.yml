@@ -19,15 +19,15 @@ jobs:
           TMP=Hola
           echo "MY_VAR=${TMP}" >> $GITHUB_ENV
       - name: Use Env Var A
-        run: echo $TMP
+        run: echo $MY_VAR
       - name: Use Env Var B
-        run: echo ${TMP}
+        run: echo ${MY_VAR}
 #       - name: Use Env Var C
 #         run: echo ${{TMP}}
 #       - name: Use Env Var D
 #         run: echo ${env.TMP}
       - name: Use Env Var E
-        run: echo ${{env.TMP}}
+        run: echo ${{env.MY_VAR}}
       - name: Setup OpenShift
         uses: manusa/actions-setup-openshift@v1.1.3
         with:
