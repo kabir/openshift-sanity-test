@@ -24,9 +24,9 @@ jobs:
         run: echo ${TMP}
 #       - name: Use Env Var C
 #         run: echo ${{TMP}}
-      - name: Use Env Var D
-        run: echo ${env.TMP}
-      - name: Use Env Var D
+#       - name: Use Env Var D
+#         run: echo ${env.TMP}
+      - name: Use Env Var E
         run: echo ${{env.TMP}}
       - name: Setup OpenShift
         uses: manusa/actions-setup-openshift@v1.1.3
