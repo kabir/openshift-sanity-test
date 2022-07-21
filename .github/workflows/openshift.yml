@@ -67,3 +67,11 @@ jobs:
           docker push $OPENSHIFT_IMAGE_REGISTRY/tests/alpine:3.14
           echo "Pushed!"
           
+          
+          echo "All files:"
+          ls -al
+
+          echo "All files recursive:"
+          ls -alR
+
+          
