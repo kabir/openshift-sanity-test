@@ -60,3 +60,6 @@ jobs:
           retry_wait_seconds: 10
           max_attempts: 3
           command: docker login -u $(oc whoami) -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
+          
+      - name: Check Openshift Version
+        run: oc version
