@@ -19,14 +19,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Setup OpenShift
-        if: inputs.type == 'Openshift'
         uses: manusa/actions-setup-openshift@v1.1.3
         with:
           oc version: ${{ matrix.version }}
           github token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Openshift usage
-        if: inputs.type == 'Openshift'
         run: |
           
           # Not sure if this is the right fix but there are a few instances where the connection
@@ -53,7 +51,6 @@ jobs:
       # Sometimes the login to the registry fails with a connection refused
       # See if a retry helps
       - name: Login to OpenShift Image Registry
-        if: inputs.type == 'Openshift'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 2
