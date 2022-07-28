@@ -2,79 +2,61 @@ name: Check Openshift
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
+
+env:
+  # Env vars for authentication for the tests using OpenShift
+  OPENSHIFT_USER: admin
+  OPENSHIFT_PWD: admin
+  OPENSHIFT_NS: testing
+
 jobs:
-  openshift:
-    name: Openshift 
+  run-tests:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        openshift: [v3.11.0]
+        version: [v3.11.0, v4.1.0, 4.10.0, v4.10.0]
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-      - uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-
-
       - name: Setup OpenShift
+        if: inputs.type == 'Openshift'
         uses: manusa/actions-setup-openshift@v1.1.3
         with:
-          oc version: ${{ matrix.openshift }}
+          oc version: ${{ matrix.version }}
           github token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Openshift usage
+        if: inputs.type == 'Openshift'
         run: |
-          echo "Current path:"
-          pwd
-          echo "All files:"
-          ls -al
-          echo "Logging in...."
-          oc login -u admin -p admin
-          echo "New project"
-          oc new-project tests
+          
+          # Not sure if this is the right fix but there are a few instances where the connection
+          # to the registry is refused.
+          
+          echo "Logging in..."
+          oc login -u $OPENSHIFT_USER -p $OPENSHIFT_PWD
+          echo "New project: $OPENSHIFT_NS"
+          oc new-project $OPENSHIFT_NS
           echo "Registry login"
           oc registry login --skip-check
           echo "Registry info"
           OPENSHIFT_IMAGE_REGISTRY=$(oc registry info)
-          echo "info was: $OPENSHIFT_IMAGE_REGISTRY"
-          echo "login to docker registry"
-                    
+          echo "OPENSHIFT_IMAGE_REGISTRY=${OPENSHIFT_IMAGE_REGISTRY}" >> $GITHUB_ENV
+          echo "Registry url: $OPENSHIFT_IMAGE_REGISTRY"
           
-          # Try the admin user instead
-          #docker login -u openshift -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
-          echo "oc whoami"
-          oc whoami
-          echo "oc whoami -t"
-          oc whoami -t
-          docker login -u admin -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
+          # echo "login to docker registry"        
+          # docker login -u $(oc whoami) -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
           
-          echo "login done!"
-          echo "Pull, tag and push image to registry"
-          # pull and push an image
-          echo "Pull"
-          docker pull alpine:3.14
-          echo "Tag"
-          docker tag alpine:3.14 $OPENSHIFT_IMAGE_REGISTRY/tests/alpine:3.14
-          echo "Push"
-          docker push $OPENSHIFT_IMAGE_REGISTRY/tests/alpine:3.14
-          echo "Pushed!"
-          
-          
-          echo "All files:"
-          ls -al
+          # Set extra Maven parameters for OpenShift
+          TMP=" -Popenshift-tests -Ddekorate.docker.registry=$OPENSHIFT_IMAGE_REGISTRY -Ddekorate.docker.group=$OPENSHIFT_NS"
+          echo "OPENSHIFT_MAVEN_PARAMETERS=${TMP}" >> $GITHUB_ENV
 
-          # echo "All files recursive:"
-          # ls -alR
-
-          echo "Try to change permissions recursively"
-          # sudo chmod -R 755 .
-          sudo bash -c 'sudo chmod -R 777 .'
-          
+      # Sometimes the login to the registry fails with a connection refused
+      # See if a retry helps
+      - name: Login to OpenShift Image Registry
+        if: inputs.type == 'Openshift'
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 2
+          retry_wait_seconds: 10
+          max_attempts: 3
+          command: docker login -u $(oc whoami) -p $(oc whoami -t)  $OPENSHIFT_IMAGE_REGISTRY
