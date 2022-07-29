@@ -3,15 +3,15 @@ name: Run Tests
 on:
   workflow_dispatch:
   repository_dispatch:
-    inputs:
-      triggerRepo:
-        description: 'The repository triggering this job'
-        type: string
-        required: true
-      triggerWorkflowRunId:
-        description: "The workflow run id of the job"
-        type: string
-        required: true
+#     inputs:
+#       triggerRepo:
+#         description: 'The repository triggering this job'
+#         type: string
+#         required: true
+#       triggerWorkflowRunId:
+#         description: "The workflow run id of the job"
+#         type: string
+#         required: true
 jobs:
   run-tests:
     runs-on: ubuntu-latest
