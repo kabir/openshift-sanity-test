@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "It failed"
           STATUS="failed"
-          echo "STATUS_TEXT=${TEXT}" >> GITHUB_ENV
+          echo "STATUS=${STATUS}" >> GITHUB_ENV
 
           
       - name: Report success
@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "It passed"
           STATUS="passed"
-          echo "STATUS_TEXT=${TEXT}" >> GITHUB_ENV
+          echo "STATUS=${STATUS}" >> GITHUB_ENV
           
       - name: Report back
         if: ${{ always() }}
@@ -48,12 +48,12 @@ jobs:
           INPUT_TOKEN: ${{ secrets.REMOTE_DISPATCH_TOKEN }}
           INPUT_EVENT_TYPE: report-cloud-tests-run-status
         run: |
-          echo "Reporting back. Status: $STATUS_TEXT"
+          echo "Reporting back. Status: $STATUS"
           RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          TEXT="The remote job $STATUS_TEXT. Further details can be found at $RUN_URL".
+          TEXT="The remote job $STATUS_TEXT.\n\nFurther details can be found at $RUN_URL".
           
           INPUT_CLIENT_PAYLOAD=$( jq -n \
-                  --arg s "$STATUS_TEXT" \
+                  --arg s "$STATUS" \
                   --arg m "$TEXT" \
                   --arg orid "$GITHUB_RUN_ID" \
                   '{status: $s, message: $m, originalId: $orid}' )
