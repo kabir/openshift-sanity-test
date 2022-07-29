@@ -16,6 +16,11 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     steps:
+      - name: Output
+        env:
+          MESSAGE: ${{ github.event.client_payload.message }}
+        run: echo $MESSAGE
+        
       - name: Determine type
         run: |
           number=$RANDOM
