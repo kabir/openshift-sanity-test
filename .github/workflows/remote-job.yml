@@ -3,15 +3,7 @@ name: Run Tests
 on:
   workflow_dispatch:
   repository_dispatch:
-#     inputs:
-#       triggerRepo:
-#         description: 'The repository triggering this job'
-#         type: string
-#         required: true
-#       triggerWorkflowRunId:
-#         description: "The workflow run id of the job"
-#         type: string
-#         required: true
+    types: [trigger-cloud-tests-run]
 jobs:
   run-tests:
     runs-on: ubuntu-latest
@@ -19,7 +11,7 @@ jobs:
       - name: Output
         env:
           #MESSAGE: ${{ github.event.client_payload.message }}
-          MESSAGE: ${{ toJSON(github.event) }}
+          MESSAGE: ${{ toJSON(github.event.client_payload) }}
         run: echo $MESSAGE
         
       - name: Determine type
