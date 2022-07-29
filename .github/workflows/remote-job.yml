@@ -29,9 +29,47 @@ jobs:
         if: ${{ failure() }}
         run: |
           echo "It failed"
+          STATUS="failed"
+          echo "STATUS_TEXT=${TEXT}" >> GITHUB_ENV
 
           
       - name: Report success
         if: ${{ success() }}
         run: |
           echo "It passed"
+          STATUS="passed"
+          echo "STATUS_TEXT=${TEXT}" >> GITHUB_ENV
+          
+      - name: Report back
+        if: ${{ always() }}
+        env:
+          TRIGGER_REPO: ${{  github.event.client_payload.triggerRepo }}
+          REMOTE_RUN_ID: ${{ github.event.client_payload.triggerWorkflowRunId }}
+          INPUT_TOKEN: ${{ secrets.REMOTE_DISPATCH_TOKEN }}
+          INPUT_EVENT_TYPE: report-cloud-tests-run-status
+        run: |
+          echo "Reporting back. Status: $STATUS_TEXT"
+          RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          TEXT="The remote job $STATUS_TEXT. Further details can be found at $RUN_URL".
+          
+          INPUT_CLIENT_PAYLOAD=$( jq -n \
+                  --arg s "$STATUS_TEXT" \
+                  --arg m "$TEXT" \
+                  --arg orid "$GITHUB_RUN_ID" \
+                  '{status: $s, message: $m, originalId: $orid}' )
+                  
+
+          resp=$(curl -X POST -s "https://api.github.com/repos/${TRIGGER_REPO}/dispatches" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${INPUT_TOKEN}" \
+              -d "{\"event_type\": \"${INPUT_EVENT_TYPE}\", \"client_payload\": ${INPUT_CLIENT_PAYLOAD} }")
+          if [ -z "$resp" ]
+          then
+            sleep 2
+          else
+            echo "Workflow failed to trigger"
+            echo "$resp"
+            exit 1
+          fi
+
