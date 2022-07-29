@@ -19,6 +19,7 @@ jobs:
       - name: Determine type
         run: |
           number=$RANDOM
+          echo $number
           if [ $((number%2)) -eq 0 ] ; then   
             echo "failing job"
             exit 1
