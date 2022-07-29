@@ -18,7 +18,8 @@ jobs:
     steps:
       - name: Output
         env:
-          MESSAGE: ${{ github.event.client_payload.message }}
+          #MESSAGE: ${{ github.event.client_payload.message }}
+          MESSAGE: ${{ github.event }}
         run: echo $MESSAGE
         
       - name: Determine type
