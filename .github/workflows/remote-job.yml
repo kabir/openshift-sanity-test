@@ -30,7 +30,7 @@ jobs:
         run: |
           echo "It failed"
           STATUS="failed"
-          echo "STATUS=${STATUS}" >> GITHUB_ENV
+          echo "STATUS=${STATUS}" >> $GITHUB_ENV
 
           
       - name: Report success
@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "It passed"
           STATUS="passed"
-          echo "STATUS=${STATUS}" >> GITHUB_ENV
+          echo "STATUS=${STATUS}" >> $GITHUB_ENV
           
       - name: Report back
         if: ${{ always() }}
