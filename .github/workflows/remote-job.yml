@@ -1,5 +1,6 @@
 name: Run Tests
-
+env:
+  INPUT_STATUS_BRANCH: run-status
 on:
   workflow_dispatch:
   repository_dispatch:
@@ -13,7 +14,12 @@ jobs:
           #MESSAGE: ${{ github.event.client_payload.message }}
           MESSAGE: ${{ toJSON(github.event.client_payload) }}
         run: echo $MESSAGE
-        
+      
+      - name: Checkout run-status branch
+        uses: actions/checkout@v2
+        with:
+          ref: run-status
+          
       - name: Determine type
         run: |
           number=$RANDOM
@@ -40,36 +46,81 @@ jobs:
           STATUS="passed"
           echo "STATUS=${STATUS}" >> $GITHUB_ENV
           
-      - name: Report back
+#       - name: Report back
+#         if: ${{ always() }}
+#         env:
+#           TRIGGER_REPO: ${{  github.event.client_payload.triggerRepo }}
+#           REMOTE_RUN_ID: ${{ github.event.client_payload.triggerWorkflowRunId }}
+#           INPUT_TOKEN: ${{ secrets.REMOTE_DISPATCH_TOKEN }}
+#           INPUT_EVENT_TYPE: report-cloud-tests-run-status
+#         run: |
+#           echo "Reporting back. Status: $STATUS"
+#           RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+#           TEXT="The remote job $STATUS_TEXT.\n\nFurther details can be found at $RUN_URL".
+          
+#           INPUT_CLIENT_PAYLOAD=$( jq -n \
+#                   --arg s "$STATUS" \
+#                   --arg m "$TEXT" \
+#                   --arg orid "$GITHUB_RUN_ID" \
+#                   '{status: $s, message: $m, originalId: $orid}' )
+                  
+
+#           resp=$(curl -X POST -s "https://api.github.com/repos/${TRIGGER_REPO}/dispatches" \
+#               -H "Accept: application/vnd.github.v3+json" \
+#               -H "Content-Type: application/json" \
+#               -H "Authorization: Bearer ${INPUT_TOKEN}" \
+#               -d "{\"event_type\": \"${INPUT_EVENT_TYPE}\", \"client_payload\": ${INPUT_CLIENT_PAYLOAD} }")
+#           if [ -z "$resp" ]
+#           then
+#             sleep 2
+#           else
+#             echo "Workflow failed to trigger"
+#             echo "$resp"
+#             exit 1
+#           fi
+
+          
+      - name: Add run status commit
         if: ${{ always() }}
         env:
           TRIGGER_REPO: ${{  github.event.client_payload.triggerRepo }}
           REMOTE_RUN_ID: ${{ github.event.client_payload.triggerWorkflowRunId }}
+          REMOTE_RUN_NUMBER: ${{ github.event.client_payload.triggerWorkflowRunNumber }}
           INPUT_TOKEN: ${{ secrets.REMOTE_DISPATCH_TOKEN }}
           INPUT_EVENT_TYPE: report-cloud-tests-run-status
         run: |
           echo "Reporting back. Status: $STATUS"
           RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          TEXT="The remote job $STATUS_TEXT.\n\nFurther details can be found at $RUN_URL".
+          TEXT="The remote job $STATUS.\n\nFurther details can be found at $RUN_URL".
           
-          INPUT_CLIENT_PAYLOAD=$( jq -n \
+          COMMIT_TEXT=$( jq -n \
                   --arg s "$STATUS" \
                   --arg m "$TEXT" \
                   --arg orid "$GITHUB_RUN_ID" \
                   '{status: $s, message: $m, originalId: $orid}' )
-                  
+          
+          FILENAME="${REMOTE_RUN_ID}-${REMOTE_RUN_NUMBER}.json"
+          
+          echo "${COMMIT_TEXT} > "${FILENAME}"
+          git config --local user.name "CI Action"
+          git config --local user.email "ci@example.com"
+          git add -A 
+          git commit -m "Committing status for ${TRIGGER_REPO} ${REMOTE_RUN_ID}-${REMOTE_RUN_NUMBER}
 
-          resp=$(curl -X POST -s "https://api.github.com/repos/${TRIGGER_REPO}/dispatches" \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer ${INPUT_TOKEN}" \
-              -d "{\"event_type\": \"${INPUT_EVENT_TYPE}\", \"client_payload\": ${INPUT_CLIENT_PAYLOAD} }")
-          if [ -z "$resp" ]
-          then
-            sleep 2
-          else
-            echo "Workflow failed to trigger"
-            echo "$resp"
-            exit 1
-          fi
-
+          i=0
+          echo "Committed. Attempting to push"
+          RESULT="$(git push origin ${INPUT_STATUS_BRANCH})"
+          while [[ "${RESULT}" != '0' ]]
+          do
+            sleep 15
+            ((i++))
+            if [[ "$i" == '10' ]]; then
+              echo "Too many failures trying to push. Giving up."
+            fi
+          
+          
+            echo "Push failed. Trying to fetch, rebase and push again..."
+            git fetch origin ${INPUT_STATUS_BRANCH}
+            git rebase origin/${INPUT_STATUS_BRANCH}
+            RESULT="$(git push origin ${INPUT_STATUS_BRANCH})"
+          done
