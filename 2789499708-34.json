@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "message": "The remote job failed.\\n\\nFurther details can be found at https://github.com/kabir/openshift-sanity-test/actions/runs/2789500564.",
+  "originalId": "2789500564"
+}
