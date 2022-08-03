@@ -106,7 +106,8 @@ jobs:
           git config --local user.name "CI Action"
           git config --local user.email "ci@example.com"
           git add -A 
-          git commit -m "Committing status for ${TRIGGER_REPO} ${REMOTE_RUN_ID}-${REMOTE_RUN_NUMBER}
+          git status
+          git commit -m "Committing status for ${TRIGGER_REPO} ${REMOTE_RUN_ID}-${REMOTE_RUN_NUMBER}"
           git status
 
           i=0
