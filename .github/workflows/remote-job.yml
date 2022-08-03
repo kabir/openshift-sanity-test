@@ -113,8 +113,10 @@ jobs:
           i=0
           echo "Committed. Attempting to push"
           RESULT="$(git push origin ${INPUT_STATUS_BRANCH})"
+          echo "result ${RESULT}"
           while [[ "${RESULT}" != '0' ]]
           do
+            echo "Sleeping"
             sleep 15
             ((i++))
             if [[ "$i" == '10' ]]; then
