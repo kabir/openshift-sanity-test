@@ -101,7 +101,7 @@ jobs:
           
           FILENAME="${REMOTE_RUN_ID}-${REMOTE_RUN_NUMBER}.json"
           
-          echo "${COMMIT_TEXT} > "${FILENAME}"
+          echo "${COMMIT_TEXT}" > "${FILENAME}"
           git status
           git config --local user.name "CI Action"
           git config --local user.email "ci@example.com"
