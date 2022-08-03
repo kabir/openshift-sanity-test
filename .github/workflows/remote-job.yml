@@ -112,7 +112,8 @@ jobs:
 
           i=0
           echo "Committed. Attempting to push"
-          RESULT="$(git push origin ${INPUT_STATUS_BRANCH})"
+          git push origin ${INPUT_STATUS_BRANCH}
+          RESULT=$?
           echo "result ${RESULT}"
           while [[ "${RESULT}" != '0' ]]
           do
@@ -127,5 +128,6 @@ jobs:
             echo "Push failed. Trying to fetch, rebase and push again..."
             git fetch origin ${INPUT_STATUS_BRANCH}
             git rebase origin/${INPUT_STATUS_BRANCH}
-            RESULT="$(git push origin ${INPUT_STATUS_BRANCH})"
+            git push origin ${INPUT_STATUS_BRANCH}
+            RESULT=$?
           done
