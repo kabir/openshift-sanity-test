@@ -1,6 +1,6 @@
 name: Run Tests
 env:
-  INPUT_STATUS_BRANCH: run-status
+  STATUS_BRANCH: run-status
 on:
   workflow_dispatch:
   repository_dispatch:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout run-status branch
         uses: actions/checkout@v2
         with:
-          ref: run-status
+          ref: ${{ env.STATUS_BRANCH }}
           
       - name: Determine type
         run: |
@@ -84,10 +84,7 @@ jobs:
         if: ${{ always() }}
         env:
           TRIGGER_REPO: ${{  github.event.client_payload.triggerRepo }}
-          REMOTE_RUN_ID: ${{ github.event.client_payload.triggerWorkflowRunId }}
-          REMOTE_RUN_NUMBER: ${{ github.event.client_payload.triggerWorkflowRunNumber }}
-          INPUT_TOKEN: ${{ secrets.REMOTE_DISPATCH_TOKEN }}
-          INPUT_EVENT_TYPE: report-cloud-tests-run-status
+          STATUS_FILE: ${{ github.event.client_payload.statusFile }}
         run: |
           echo "Reporting back. Status: $STATUS"
           RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
@@ -99,35 +96,37 @@ jobs:
                   --arg orid "$GITHUB_RUN_ID" \
                   '{status: $s, message: $m, originalId: $orid}' )
           
-          FILENAME="${REMOTE_RUN_ID}-${REMOTE_RUN_NUMBER}.json"
+          FILENAME="${STATUS_FILE}.json"
           
           echo "${COMMIT_TEXT}" > "${FILENAME}"
-          git status
+          # git status
           git config --local user.name "CI Action"
           git config --local user.email "ci@example.com"
           git add -A 
-          git status
-          git commit -m "Committing status for ${TRIGGER_REPO} ${REMOTE_RUN_ID}-${REMOTE_RUN_NUMBER}"
-          git status
+          # git status
+          git commit -m "Committing status for ${TRIGGER_REPO} ${FILENAME}"
+          # git status
 
           i=0
           echo "Committed. Attempting to push"
-          git push origin ${INPUT_STATUS_BRANCH}
+          git push origin ${STATUS_BRANCH}
           RESULT=$?
           echo "result ${RESULT}"
           while [[ "${RESULT}" != '0' ]]
           do
-            echo "Sleeping"
-            sleep 15
-            ((i++))
+            # Generate random sleep time between 15 and 45 seconds
+            wait=$[ $RANDOM % 45 + 15 ]
+            echo "Sleeping $wait seconds"
+            sleep $wait
+            i=$((i+1))
             if [[ "$i" == '10' ]]; then
               echo "Too many failures trying to push. Giving up."
             fi
           
           
             echo "Push failed. Trying to fetch, rebase and push again..."
-            git fetch origin ${INPUT_STATUS_BRANCH}
-            git rebase origin/${INPUT_STATUS_BRANCH}
-            git push origin ${INPUT_STATUS_BRANCH}
+            git fetch origin ${STATUS_BRANCH}
+            git rebase origin/${STATUS_BRANCH}
+            git push origin ${STATUS_BRANCH}
             RESULT=$?
           done
