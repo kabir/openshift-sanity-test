@@ -90,7 +90,7 @@ jobs:
         run: |
           echo "Reporting back. Status: $STATUS"
           RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          TEXT="The remote job $STATUS.\n\nFurther details can be found at $RUN_URL".
+          TEXT="The remote job $STATUS. Further details can be found at $RUN_URL".
           
           COMMIT_TEXT=$( jq -n \
                   --arg s "$STATUS" \
