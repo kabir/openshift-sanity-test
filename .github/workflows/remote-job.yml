@@ -96,9 +96,8 @@ jobs:
                   --arg orid "$GITHUB_RUN_ID" \
                   '{status: $s, message: $m, originalId: $orid}' )
           
-          FILENAME="${STATUS_FILE}.json"
           
-          echo "${COMMIT_TEXT}" > "${FILENAME}"
+          echo "${COMMIT_TEXT}" > "${STATUS_FILE}"
           # git status
           git config --local user.name "CI Action"
           git config --local user.email "ci@example.com"
