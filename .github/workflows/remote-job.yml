@@ -30,6 +30,8 @@ jobs:
           else
             echo "passing job"
           fi
+          # Force failure
+          exit 1
           
       - name: Report failure
         if: ${{ failure() }}
