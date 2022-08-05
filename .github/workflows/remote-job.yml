@@ -45,19 +45,19 @@ jobs:
         run: |
           echo "${{ toJSON(needs) }}"
           if [[ ${{ needs.run-tests-A.outputs.status }} == "1" ]]; then
-            exit 0
+            exit 1
           fi
           if [[ ${{ needs.run-tests-B.outputs.status }} == "1" ]]; then
-            exit 0
+            exit 1
           fi
           if [[ ${{ needs.run-tests-C.outputs.status }} == "1" ]]; then
-            exit 0
+            exit 1
           fi
           if [[ ${{ needs.run-tests-D.outputs.status }} == "1" ]]; then
-            exit 0
+            exit 1
           fi
           if [[ ${{ needs.run-tests-E.outputs.status }} == "1" ]]; then
-            exit 0
+            exit 1
           fi
           
       - name: Report failure
