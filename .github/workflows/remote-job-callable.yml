@@ -57,4 +57,5 @@ jobs:
           echo "STATUS=0}" >> $GITHUB_ENV
           
       - id: output-status
+        if: ${{ always() }}
         run: echo "::set-output name=status::${STATUS}"
