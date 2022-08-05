@@ -41,17 +41,6 @@ jobs:
           ref: ${{ env.STATUS_BRANCH }}
           path: status      
           
-      - name: Determine type
-        run: |
-          number=$RANDOM
-          echo $number
-          if [ $((number%2)) -eq 0 ] ; then   
-            echo "failing job"
-            exit 1
-          else
-            echo "passing job"
-          fi
-          
       - name: Report failure
         if: ${{ failure() }}
         run: |
