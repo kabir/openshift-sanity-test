@@ -42,7 +42,6 @@ jobs:
           
       - name: Report success
         if: ${{ success() }}
-        working-directory: status
         run: |
           echo "It passed"
           STATUS="passed"
@@ -87,6 +86,7 @@ jobs:
         env:
           TRIGGER_REPO: ${{  github.event.client_payload.triggerRepo }}
           STATUS_FILE: ${{ github.event.client_payload.statusFile }}
+        working-directory: status
         run: |
           echo "Reporting back. Status: $STATUS"
           RUN_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
