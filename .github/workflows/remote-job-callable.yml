@@ -11,7 +11,7 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     outputs:
-      status: ${{ steps.step2.output-status.status }}
+      status: ${{ steps.output-status.outputs.status }}
     steps:
       - name: Output
         env:
