@@ -14,9 +14,15 @@ jobs:
           #MESSAGE: ${{ github.event.client_payload.message }}
           MESSAGE: ${{ toJSON(github.event.client_payload) }}
         run: echo $MESSAGE
-      
+
       - name: Checkout run-status branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          repository: wildfly/wildfly
+          path: status      
+
+      - name: Checkout run-status branch
+        uses: actions/checkout@v3
         with:
           ref: ${{ env.STATUS_BRANCH }}
           path: status      
