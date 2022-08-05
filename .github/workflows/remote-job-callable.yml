@@ -3,9 +3,15 @@ env:
   STATUS_BRANCH: run-status
 on:
   workflow_call:
+    outputs:
+      status:
+        description: 0 if job pased, 1 if not
+        value: ${{ jobs.run_tests.outputs.status }}
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.step2.output-status.status }}
     steps:
       - name: Output
         env:
@@ -35,3 +41,20 @@ jobs:
           else
             echo "passing job"
           fi
+          
+      - name: Report failure
+        if: ${{ failure() }}
+        run: |
+          echo "It failed"
+          STATUS="failed"
+          echo "STATUS=1" >> $GITHUB_ENV
+          
+      - name: Report success
+        if: ${{ success() }}
+        run: |
+          echo "It passed"
+          STATUS="passed"
+          echo "STATUS=0}" >> $GITHUB_ENV
+          
+      - id: output-status
+        run: echo "::set-output name=status::${STATUS}"
