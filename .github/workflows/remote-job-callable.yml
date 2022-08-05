@@ -6,7 +6,7 @@ on:
     outputs:
       status:
         description: 0 if job pased, 1 if not
-        value: ${{ jobs.run_tests.outputs.status }}
+        value: ${{ jobs.run-tests.outputs.status }}
 jobs:
   run-tests:
     runs-on: ubuntu-latest
