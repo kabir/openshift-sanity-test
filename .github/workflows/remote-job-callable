@@ -1,0 +1,37 @@
+name: Run Tests
+env:
+  STATUS_BRANCH: run-status
+on:
+  workflow_call:
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output
+        env:
+          #MESSAGE: ${{ github.event.client_payload.message }}
+          MESSAGE: ${{ toJSON(github.event.client_payload) }}
+        run: echo $MESSAGE
+
+      - name: Checkout run-status branch
+        uses: actions/checkout@v3
+        with:
+          repository: wildfly/wildfly
+          path: status      
+
+      - name: Checkout run-status branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.STATUS_BRANCH }}
+          path: status      
+          
+      - name: Determine type
+        run: |
+          number=$RANDOM
+          echo $number
+          if [ $((number%2)) -eq 0 ] ; then   
+            echo "failing job"
+            exit 1
+          else
+            echo "passing job"
+          fi
