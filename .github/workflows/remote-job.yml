@@ -6,7 +6,21 @@ on:
   repository_dispatch:
     types: [trigger-cloud-tests-run]
 jobs:
-  run-tests:
+  run-tests-A:
+    uses: ./.github/workflows/remote-job-callable.yml
+  run-tests-B:
+    uses: ./.github/workflows/remote-job-callable.yml
+  run-tests-C:
+    uses: ./.github/workflows/remote-job-callable.yml
+  run-tests-D:
+    uses: ./.github/workflows/remote-job-callable.yml
+  run-tests-E:
+    uses: ./.github/workflows/remote-job-callable.yml
+
+
+  reporter:
+    needs: [run-tests-A, run-tests-B, run-tests-C, run-tests-D, run-tests-E]
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - name: Output
