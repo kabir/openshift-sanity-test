@@ -61,15 +61,3 @@ jobs:
         run: |
           echo "Setting 'status' output to ${STATUS}"
           echo "::set-output name=status::${STATUS}"
-
-  sanity-test:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: run-tests
-    steps:
-      - name: Check needs
-        run: |
-          echo "${{ toJSON(needs) }}"
-      - name: Check output
-        run: |
-          echo "${{ needs.run-tests.outputs.status }}"
